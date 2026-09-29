@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'app.dart';
 
-void main() {
-  runApp(const FairSplitApp());
-}
+void main() => runApp(const FairSplitBootstrap());
 
 class FairSplitApp extends StatelessWidget {
   const FairSplitApp({super.key});
