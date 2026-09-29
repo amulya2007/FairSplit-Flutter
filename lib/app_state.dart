@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:sqflite/sqflite.dart';
 
+import 'database_factory.dart';
 import 'models.dart';
 
 class FairSplitState extends ChangeNotifier {
@@ -24,9 +25,12 @@ class FairSplitState extends ChangeNotifier {
       FairMember(id: currentMemberId, name: name, email: email);
 
   static Future<FairSplitState> create() async {
-    final databasePath = path.join(await getDatabasesPath(), 'fairsplit.db');
-    final database = await openDatabase(
-      databasePath,
+    await configureDatabaseFactory();
+    final nativePath = kIsWeb
+      ? 'fairsplit.db'
+      : path.join(await getDatabasesPath(), 'fairsplit.db');
+    final database = await configuredDatabaseFactory.openDatabase(
+      databaseFilePath(nativePath),
       version: 1,
       onCreate: (db, version) async {
         await db.execute(
