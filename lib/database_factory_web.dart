@@ -6,5 +6,3 @@ Future<void> configureDatabaseFactory() async {
 }
 
 String databaseFilePath(String nativePath) => 'fairsplit.db';
-
-DatabaseFactory get configuredDatabaseFactory => databaseFactory;

@@ -572,10 +572,11 @@ class GroupDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = FairSplitScope.of(context);
     final group = state.groups.where((item) => item.id == groupId).firstOrNull;
-    if (group == null)
+    if (group == null) {
       return const Scaffold(
         body: Center(child: Text('This group is no longer available.')),
       );
+    }
     final balances = state.balancesFor(group);
     final expenses = state.expensesFor(group.id);
     final total = expenses.fold<int>(
@@ -829,13 +830,16 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 sum +
                 (double.tryParse(_shareControllers[member.id]!.text) ?? -100),
           );
-      if ((percentages - 100).abs() > 0.001)
+      if ((percentages - 100).abs() > 0.001) {
         return 'Percentages must add up to 100%.';
+      }
     }
-    if (shares.values.any((share) => share < 0))
+    if (shares.values.any((share) => share < 0)) {
       return 'Shares cannot be negative.';
-    if (shares.values.fold<int>(0, (sum, share) => sum + share) != total)
+    }
+    if (shares.values.fold<int>(0, (sum, share) => sum + share) != total) {
       return 'Shares must match the expense amount.';
+    }
     return null;
   }
 
@@ -1305,8 +1309,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
                                 final expense = state.expenses
                                     .where((item) => item.id == entry.id)
                                     .firstOrNull;
-                                if (expense != null)
+                                if (expense != null) {
                                   _showExpenseDetails(context, expense, group);
+                                }
                               }
                             : null,
                       );
@@ -1708,8 +1713,9 @@ Future<void> _searchGroup(BuildContext context, FairGroup group) async {
       .expensesFor(group.id)
       .where((item) => item.title.toLowerCase().contains(query.toLowerCase()))
       .firstOrNull;
-  if (expense != null && context.mounted)
+  if (expense != null && context.mounted) {
     _showExpenseDetails(context, expense, group);
+  }
 }
 
 class _ExpenseSearchDelegate extends SearchDelegate<String> {

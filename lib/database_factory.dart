@@ -1,5 +1,3 @@
-import 'package:sqflite/sqflite.dart';
-
 import 'database_factory_stub.dart'
     if (dart.library.io) 'database_factory_io.dart'
     if (dart.library.html) 'database_factory_web.dart' as platform;
@@ -7,5 +5,3 @@ import 'database_factory_stub.dart'
 Future<void> configureDatabaseFactory() => platform.configureDatabaseFactory();
 
 String databaseFilePath(String nativePath) => platform.databaseFilePath(nativePath);
-
-DatabaseFactory get configuredDatabaseFactory => platform.configuredDatabaseFactory;

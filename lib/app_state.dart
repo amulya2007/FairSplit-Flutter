@@ -29,7 +29,7 @@ class FairSplitState extends ChangeNotifier {
     final nativePath = kIsWeb
       ? 'fairsplit.db'
       : path.join(await getDatabasesPath(), 'fairsplit.db');
-    final database = await configuredDatabaseFactory.openDatabase(
+    final database = await openDatabase(
       databaseFilePath(nativePath),
       version: 1,
       onCreate: (db, version) async {
@@ -253,12 +253,15 @@ class FairSplitState extends ChangeNotifier {
   Future<void> saveExpense(FairExpense expense) async {
     final group = groups.firstWhere((item) => item.id == expense.groupId);
     final memberIds = group.members.map((member) => member.id).toSet();
-    if (expense.title.trim().isEmpty)
+    if (expense.title.trim().isEmpty) {
       throw ArgumentError('Enter an expense name.');
-    if (expense.amountCents <= 0)
+    }
+    if (expense.amountCents <= 0) {
       throw ArgumentError('Amount must be greater than zero.');
-    if (!memberIds.contains(expense.paidBy))
+    }
+    if (!memberIds.contains(expense.paidBy)) {
       throw ArgumentError('Choose who paid.');
+    }
     if (expense.shares.isEmpty ||
         expense.shares.values.any((share) => share < 0)) {
       throw ArgumentError('Choose participants and enter valid shares.');
@@ -283,8 +286,9 @@ class FairSplitState extends ChangeNotifier {
 
   Future<void> recordSettlement(FairSettlement settlement) async {
     final group = groups.firstWhere((item) => item.id == settlement.groupId);
-    if (settlement.amountCents <= 0)
+    if (settlement.amountCents <= 0) {
       throw ArgumentError('Amount must be greater than zero.');
+    }
     if (settlement.paidBy == settlement.paidTo) {
       throw ArgumentError('Choose two different members.');
     }
@@ -349,8 +353,9 @@ class FairSplitState extends ChangeNotifier {
     this.email = email.trim();
     currentMemberId = nextMemberId;
     groups = groups.map((group) {
-      if (!group.members.any((member) => member.id == previousMemberId))
+      if (!group.members.any((member) => member.id == previousMemberId)) {
         return group;
+      }
       return FairGroup(
         id: group.id,
         name: group.name,
