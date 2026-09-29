@@ -27,8 +27,8 @@ class FairSplitState extends ChangeNotifier {
   static Future<FairSplitState> create() async {
     await configureDatabaseFactory();
     final nativePath = kIsWeb
-      ? 'fairsplit.db'
-      : path.join(await getDatabasesPath(), 'fairsplit.db');
+        ? 'fairsplit.db'
+        : path.join(await getDatabasesPath(), 'fairsplit.db');
     final database = await openDatabase(
       databaseFilePath(nativePath),
       version: 1,
@@ -89,7 +89,6 @@ class FairSplitState extends ChangeNotifier {
     currencyCode = preferences['currency'] ?? currencyCode;
     darkMode = preferences['darkMode'] == 'true';
     onboardingComplete = preferences['onboardingComplete'] == 'true';
-
   }
 
   Future<void> loadDemoData() async {
