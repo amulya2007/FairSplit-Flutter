@@ -76,7 +76,10 @@ void main() {
       'd': -5000,
     });
     expect(suggested, hasLength(3));
-    expect(suggested.fold<int>(0, (sum, payment) => sum + payment.amountCents), 45000);
+    expect(
+      suggested.fold<int>(0, (sum, payment) => sum + payment.amountCents),
+      45000,
+    );
   });
 
   test('expense records round-trip through JSON', () {

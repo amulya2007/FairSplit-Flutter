@@ -148,16 +148,15 @@ class FairSettlement {
     'note': note,
   };
 
-  factory FairSettlement.fromJson(Map<String, dynamic> json) =>
-      FairSettlement(
-        id: json['id'] as String,
-        groupId: json['groupId'] as String,
-        paidBy: json['paidBy'] as String,
-        paidTo: json['paidTo'] as String,
-        amountCents: json['amountCents'] as int,
-        date: DateTime.parse(json['date'] as String),
-        note: json['note'] as String? ?? '',
-      );
+  factory FairSettlement.fromJson(Map<String, dynamic> json) => FairSettlement(
+    id: json['id'] as String,
+    groupId: json['groupId'] as String,
+    paidBy: json['paidBy'] as String,
+    paidTo: json['paidTo'] as String,
+    amountCents: json['amountCents'] as int,
+    date: DateTime.parse(json['date'] as String),
+    note: json['note'] as String? ?? '',
+  );
 }
 
 class SuggestedPayment {

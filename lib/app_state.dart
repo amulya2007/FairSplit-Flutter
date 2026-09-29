@@ -20,11 +20,8 @@ class FairSplitState extends ChangeNotifier {
   bool darkMode = false;
   bool onboardingComplete = false;
 
-  FairMember get currentMember => FairMember(
-    id: currentMemberId,
-    name: name,
-    email: email,
-  );
+  FairMember get currentMember =>
+      FairMember(id: currentMemberId, name: name, email: email);
 
   static Future<FairSplitState> create() async {
     final databasePath = path.join(await getDatabasesPath(), 'fairsplit.db');
@@ -182,10 +179,9 @@ class FairSplitState extends ChangeNotifier {
     return total + (balance < 0 ? -balance : 0);
   });
 
-  List<FairExpense> expensesFor(String groupId) => expenses
-      .where((expense) => expense.groupId == groupId)
-      .toList()
-    ..sort((a, b) => b.date.compareTo(a.date));
+  List<FairExpense> expensesFor(String groupId) =>
+      expenses.where((expense) => expense.groupId == groupId).toList()
+        ..sort((a, b) => b.date.compareTo(a.date));
 
   Future<FairGroup> addGroup({
     required String groupName,
@@ -195,13 +191,17 @@ class FairSplitState extends ChangeNotifier {
   }) async {
     final normalizedName = groupName.trim();
     if (normalizedName.isEmpty) throw ArgumentError('Enter a group name.');
-    if (groups.any((group) => group.name.toLowerCase() == normalizedName.toLowerCase())) {
+    if (groups.any(
+      (group) => group.name.toLowerCase() == normalizedName.toLowerCase(),
+    )) {
       throw ArgumentError('A group with that name already exists.');
     }
     final members = <FairMember>[currentMember];
     for (final memberName in memberNames.map((name) => name.trim())) {
       if (memberName.isEmpty) continue;
-      if (members.any((member) => member.name.toLowerCase() == memberName.toLowerCase())) {
+      if (members.any(
+        (member) => member.name.toLowerCase() == memberName.toLowerCase(),
+      )) {
         continue;
       }
       members.add(FairMember(id: _id(), name: memberName));
@@ -233,7 +233,10 @@ class FairSplitState extends ChangeNotifier {
       id: group.id,
       name: group.name,
       category: group.category,
-      members: [...group.members, FairMember(id: _id(), name: normalizedName)],
+      members: [
+        ...group.members,
+        FairMember(id: _id(), name: normalizedName),
+      ],
       description: group.description,
       icon: group.icon,
       createdAt: group.createdAt,
@@ -246,10 +249,14 @@ class FairSplitState extends ChangeNotifier {
   Future<void> saveExpense(FairExpense expense) async {
     final group = groups.firstWhere((item) => item.id == expense.groupId);
     final memberIds = group.members.map((member) => member.id).toSet();
-    if (expense.title.trim().isEmpty) throw ArgumentError('Enter an expense name.');
-    if (expense.amountCents <= 0) throw ArgumentError('Amount must be greater than zero.');
-    if (!memberIds.contains(expense.paidBy)) throw ArgumentError('Choose who paid.');
-    if (expense.shares.isEmpty || expense.shares.values.any((share) => share < 0)) {
+    if (expense.title.trim().isEmpty)
+      throw ArgumentError('Enter an expense name.');
+    if (expense.amountCents <= 0)
+      throw ArgumentError('Amount must be greater than zero.');
+    if (!memberIds.contains(expense.paidBy))
+      throw ArgumentError('Choose who paid.');
+    if (expense.shares.isEmpty ||
+        expense.shares.values.any((share) => share < 0)) {
       throw ArgumentError('Choose participants and enter valid shares.');
     }
     if (expense.shares.keys.any((memberId) => !memberIds.contains(memberId))) {
@@ -259,10 +266,7 @@ class FairSplitState extends ChangeNotifier {
         expense.amountCents) {
       throw ArgumentError('Shares must add up to the expense total.');
     }
-    expenses = [
-      ...expenses.where((item) => item.id != expense.id),
-      expense,
-    ];
+    expenses = [...expenses.where((item) => item.id != expense.id), expense];
     await _persistExpense(expense);
     notifyListeners();
   }
@@ -275,7 +279,8 @@ class FairSplitState extends ChangeNotifier {
 
   Future<void> recordSettlement(FairSettlement settlement) async {
     final group = groups.firstWhere((item) => item.id == settlement.groupId);
-    if (settlement.amountCents <= 0) throw ArgumentError('Amount must be greater than zero.');
+    if (settlement.amountCents <= 0)
+      throw ArgumentError('Amount must be greater than zero.');
     if (settlement.paidBy == settlement.paidTo) {
       throw ArgumentError('Choose two different members.');
     }
@@ -284,7 +289,8 @@ class FairSplitState extends ChangeNotifier {
         !balances.containsKey(settlement.paidTo)) {
       throw ArgumentError('Choose members from this group.');
     }
-    if (balances[settlement.paidBy]! >= 0 || balances[settlement.paidTo]! <= 0) {
+    if (balances[settlement.paidBy]! >= 0 ||
+        balances[settlement.paidTo]! <= 0) {
       throw ArgumentError('The selected members do not have a debt to settle.');
     }
     if (settlement.amountCents > -balances[settlement.paidBy]! ||
@@ -324,7 +330,10 @@ class FairSplitState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateProfile({required String name, required String email}) async {
+  Future<void> updateProfile({
+    required String name,
+    required String email,
+  }) async {
     if (name.trim().isEmpty) throw ArgumentError('Enter your name.');
     if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email.trim())) {
       throw ArgumentError('Enter a valid email address.');
@@ -336,15 +345,22 @@ class FairSplitState extends ChangeNotifier {
     this.email = email.trim();
     currentMemberId = nextMemberId;
     groups = groups.map((group) {
-      if (!group.members.any((member) => member.id == previousMemberId)) return group;
+      if (!group.members.any((member) => member.id == previousMemberId))
+        return group;
       return FairGroup(
         id: group.id,
         name: group.name,
         category: group.category,
         members: group.members
-            .map((member) => member.id == previousMemberId
-                ? FairMember(id: nextMemberId, name: this.name, email: this.email)
-                : member)
+            .map(
+              (member) => member.id == previousMemberId
+                  ? FairMember(
+                      id: nextMemberId,
+                      name: this.name,
+                      email: this.email,
+                    )
+                  : member,
+            )
             .toList(),
         description: group.description,
         icon: group.icon,
@@ -361,7 +377,9 @@ class FairSplitState extends ChangeNotifier {
         groupId: expense.groupId,
         title: expense.title,
         amountCents: expense.amountCents,
-        paidBy: expense.paidBy == previousMemberId ? nextMemberId : expense.paidBy,
+        paidBy: expense.paidBy == previousMemberId
+            ? nextMemberId
+            : expense.paidBy,
         shares: shares,
         splitMethod: expense.splitMethod,
         category: expense.category,
@@ -370,17 +388,29 @@ class FairSplitState extends ChangeNotifier {
         receiptPath: expense.receiptPath,
       );
     }).toList();
-    settlements = settlements.map((settlement) => FairSettlement(
-      id: settlement.id,
-      groupId: settlement.groupId,
-      paidBy: settlement.paidBy == previousMemberId ? nextMemberId : settlement.paidBy,
-      paidTo: settlement.paidTo == previousMemberId ? nextMemberId : settlement.paidTo,
-      amountCents: settlement.amountCents,
-      date: settlement.date,
-      note: settlement.note,
-    )).toList();
+    settlements = settlements
+        .map(
+          (settlement) => FairSettlement(
+            id: settlement.id,
+            groupId: settlement.groupId,
+            paidBy: settlement.paidBy == previousMemberId
+                ? nextMemberId
+                : settlement.paidBy,
+            paidTo: settlement.paidTo == previousMemberId
+                ? nextMemberId
+                : settlement.paidTo,
+            amountCents: settlement.amountCents,
+            date: settlement.date,
+            note: settlement.note,
+          ),
+        )
+        .toList();
     if (previousMember.id != currentMemberId) {
-      await _database.delete('preferences', where: 'key = ?', whereArgs: ['memberId']);
+      await _database.delete(
+        'preferences',
+        where: 'key = ?',
+        whereArgs: ['memberId'],
+      );
     }
     await _persistAll();
     await _persistPreference('memberId', currentMemberId);
@@ -412,11 +442,10 @@ class FairSplitState extends ChangeNotifier {
     });
   }
 
-  Future<void> _persistGroup(FairGroup group) => _database.insert(
-    'groups',
-    {'id': group.id, 'payload': jsonEncode(group.toJson())},
-    conflictAlgorithm: ConflictAlgorithm.replace,
-  );
+  Future<void> _persistGroup(FairGroup group) => _database.insert('groups', {
+    'id': group.id,
+    'payload': jsonEncode(group.toJson()),
+  }, conflictAlgorithm: ConflictAlgorithm.replace);
 
   Future<void> _persistExpense(FairExpense expense) => _database.insert(
     'expenses',
@@ -425,11 +454,10 @@ class FairSplitState extends ChangeNotifier {
   );
 
   Future<void> _persistSettlement(FairSettlement settlement) =>
-      _database.insert(
-        'settlements',
-        {'id': settlement.id, 'payload': jsonEncode(settlement.toJson())},
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      _database.insert('settlements', {
+        'id': settlement.id,
+        'payload': jsonEncode(settlement.toJson()),
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
 
   Future<void> _persistPreference(String key, String value) => _database.insert(
     'preferences',
@@ -437,10 +465,9 @@ class FairSplitState extends ChangeNotifier {
     conflictAlgorithm: ConflictAlgorithm.replace,
   );
 
-  String _id() => '${DateTime.now().microsecondsSinceEpoch}-${groups.length}-${expenses.length}';
+  String _id() =>
+      '${DateTime.now().microsecondsSinceEpoch}-${groups.length}-${expenses.length}';
 
-  String _slug(String value) => value.trim().toLowerCase().replaceAll(
-    RegExp(r'[^a-z0-9]+'),
-    '-',
-  );
+  String _slug(String value) =>
+      value.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-');
 }

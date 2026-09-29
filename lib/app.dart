@@ -46,7 +46,9 @@ class _FairSplitBootstrapState extends State<FairSplitBootstrap> {
       if (!snapshot.hasData) {
         return MaterialApp(
           theme: AppTheme.light(),
-          home: const Scaffold(body: Center(child: CircularProgressIndicator())),
+          home: const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          ),
         );
       }
       return FairSplitApp(state: snapshot.requireData);
@@ -71,10 +73,8 @@ class FairSplitApp extends StatelessWidget {
       home: state.onboardingComplete
           ? const MainNavigation()
           : const OnboardingScreen(),
-      builder: (context, child) => FairSplitScope(
-        state: state,
-        child: child ?? const SizedBox.shrink(),
-      ),
+      builder: (context, child) =>
+          FairSplitScope(state: state, child: child ?? const SizedBox.shrink()),
     ),
   );
 }
@@ -110,7 +110,9 @@ class _MainNavigationState extends State<MainNavigation> {
       const ProfileScreen(),
     ];
     return Scaffold(
-      body: SafeArea(child: IndexedStack(index: _index, children: pages)),
+      body: SafeArea(
+        child: IndexedStack(index: _index, children: pages),
+      ),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Add to FairSplit',
         onPressed: _showQuickActions,
@@ -120,10 +122,26 @@ class _MainNavigationState extends State<MainNavigation> {
         selectedIndex: _index,
         onDestinationSelected: (index) => setState(() => _index = index),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups), label: 'Groups'),
-          NavigationDestination(icon: Icon(Icons.receipt_long_outlined), selectedIcon: Icon(Icons.receipt_long), label: 'Activity'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.groups_outlined),
+            selectedIcon: Icon(Icons.groups),
+            label: 'Groups',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.receipt_long_outlined),
+            selectedIcon: Icon(Icons.receipt_long),
+            label: 'Activity',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
+          ),
         ],
       ),
     );
@@ -138,7 +156,10 @@ class _MainNavigationState extends State<MainNavigation> {
           children: [
             const Padding(
               padding: EdgeInsets.fromLTRB(20, 8, 20, 12),
-              child: Text('Quick add', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+              child: Text(
+                'Quick add',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              ),
             ),
             ListTile(
               leading: const Icon(Icons.receipt_long_outlined),
@@ -153,7 +174,10 @@ class _MainNavigationState extends State<MainNavigation> {
               title: const Text('Create group'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateGroupScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CreateGroupScreen()),
+                );
               },
             ),
             ListTile(
@@ -161,7 +185,10 @@ class _MainNavigationState extends State<MainNavigation> {
               title: const Text('Settle up'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const SettleUpScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettleUpScreen()),
+                );
               },
             ),
           ],
@@ -173,7 +200,10 @@ class _MainNavigationState extends State<MainNavigation> {
   void _chooseExpenseGroup() {
     final groups = FairSplitScope.of(context).groups;
     if (groups.isEmpty) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateGroupScreen()));
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const CreateGroupScreen()),
+      );
       return;
     }
     showModalBottomSheet<void>(
@@ -183,14 +213,24 @@ class _MainNavigationState extends State<MainNavigation> {
         child: ListView(
           shrinkWrap: true,
           children: [
-            const ListTile(title: Text('Choose a group', style: TextStyle(fontWeight: FontWeight.w700))),
+            const ListTile(
+              title: Text(
+                'Choose a group',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
             for (final group in groups)
               ListTile(
                 leading: const Icon(Icons.groups_outlined),
                 title: Text(group.name),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => AddExpenseScreen(group: group)));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AddExpenseScreen(group: group),
+                    ),
+                  );
                 },
               ),
           ],
