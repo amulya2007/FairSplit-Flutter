@@ -5,7 +5,9 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:fairsplit/app.dart';
 import 'package:fairsplit/app_state.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fairsplit/models.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -102,26 +104,51 @@ void main() {
     expect(restored.splitMethod, SplitMethod.custom);
   });
 
-  test(
-    'dark mode changes immediately and persists across state reloads',
-    () async {
+  testWidgets(
+    'theme switch updates the app and persists across state reloads',
+    (tester) async {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
       final state = await FairSplitState.create(
         databasePathOverride: inMemoryDatabasePath,
       );
-      await state.setDarkMode(true);
+      await state.completeOnboarding();
+      await tester.pumpWidget(FairSplitApp(state: state));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Profile'));
+      await tester.pumpAndSettle();
+
+      expect(state.darkMode, isFalse);
+      expect(
+        Theme.of(tester.element(find.byType(Switch).first)).brightness,
+        Brightness.light,
+      );
+      await tester.tap(find.byType(Switch).first);
+      await tester.pumpAndSettle();
       expect(state.darkMode, isTrue);
+      expect(
+        Theme.of(tester.element(find.byType(Switch).first)).brightness,
+        Brightness.dark,
+      );
 
       final restored = await FairSplitState.create(
         databasePathOverride: inMemoryDatabasePath,
       );
       expect(restored.darkMode, isTrue);
 
-      await restored.setDarkMode(false);
+      await tester.tap(find.byType(Switch).first);
+      await tester.pumpAndSettle();
+      expect(state.darkMode, isFalse);
+      expect(
+        Theme.of(tester.element(find.byType(Switch).first)).brightness,
+        Brightness.light,
+      );
       final lightMode = await FairSplitState.create(
         databasePathOverride: inMemoryDatabasePath,
       );
       expect(lightMode.darkMode, isFalse);
 
+      await tester.pumpWidget(const SizedBox.shrink());
       await state.close();
     },
   );

@@ -26,11 +26,13 @@ class FairSplitState extends ChangeNotifier {
 
   static Future<FairSplitState> create({String? databasePathOverride}) async {
     await configureDatabaseFactory();
-    final nativePath = kIsWeb
-        ? 'fairsplit.db'
-        : path.join(await getDatabasesPath(), 'fairsplit.db');
+    final nativePath =
+        databasePathOverride ??
+        (kIsWeb
+            ? 'fairsplit.db'
+            : path.join(await getDatabasesPath(), 'fairsplit.db'));
     final database = await openDatabase(
-      databasePathOverride ?? databaseFilePath(nativePath),
+      databaseFilePath(nativePath),
       version: 1,
       onCreate: (db, version) async {
         await db.execute(
