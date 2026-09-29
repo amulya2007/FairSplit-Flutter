@@ -60,8 +60,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
   ];
 
-  Future<void> _finish() async {
-    await FairSplitScope.of(context).completeOnboarding();
+  Future<void> _finish({bool withSampleData = false}) async {
+    final state = FairSplitScope.of(context);
+    if (withSampleData) await state.loadDemoData();
+    await state.completeOnboarding();
   }
 
   @override
@@ -153,9 +155,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       );
                     }
                   },
-                  child: Text(_page == 2 ? 'Get started' : 'Next'),
+                  child: Text(_page == 2 ? 'Start with my own groups' : 'Next'),
                 ),
               ),
+              if (_page == 2)
+                TextButton(
+                  onPressed: () => _finish(withSampleData: true),
+                  child: const Text('Explore with sample data'),
+                ),
             ],
           ),
         ),
@@ -734,7 +741,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       member.id: TextEditingController(text: _initialShare(member.id)),
   };
   final Set<String> _participants = {};
-  late String _payer = widget.existing?.paidBy ?? 'amulya';
+  late String _payer;
   late String _category = widget.existing?.category ?? 'Food';
   late SplitMethod _method = widget.existing?.splitMethod ?? SplitMethod.equal;
   DateTime _date = DateTime.now();
@@ -751,7 +758,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   @override
   void initState() {
     super.initState();
-    _payer = widget.existing?.paidBy ?? widget.group.members.first.id;
+    _payer =
+        widget.existing?.paidBy ?? FairSplitScope.of(context).currentMemberId;
     _participants.addAll(
       widget.existing?.shares.keys ??
           widget.group.members.map((member) => member.id),
@@ -1390,6 +1398,12 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 8),
           _Insights(state: state),
           const SizedBox(height: 18),
+          OutlinedButton.icon(
+            onPressed: () => _clearDemoData(context),
+            icon: const Icon(Icons.delete_sweep_outlined),
+            label: const Text('Remove sample data'),
+          ),
+          const SizedBox(height: 18),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('FairSplit'),
@@ -1399,6 +1413,31 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> _clearDemoData(BuildContext context) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Remove sample data?'),
+      content: const Text(
+        'Only the original sample expenses will be removed. Any groups with your own expenses will stay.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Keep sample data'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Remove'),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true || !context.mounted) return;
+  await FairSplitScope.of(context).clearDemoData();
+  if (context.mounted) _showMessage(context, 'Sample data removed.');
 }
 
 class _Insights extends StatelessWidget {

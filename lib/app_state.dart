@@ -90,7 +90,52 @@ class FairSplitState extends ChangeNotifier {
     darkMode = preferences['darkMode'] == 'true';
     onboardingComplete = preferences['onboardingComplete'] == 'true';
 
-    if (groups.isEmpty) await _seedDemoData();
+  }
+
+  Future<void> loadDemoData() async {
+    if (groups.isNotEmpty || expenses.isNotEmpty) return;
+    await _seedDemoData();
+    notifyListeners();
+  }
+
+  Future<void> clearDemoData() async {
+    const demoGroupIds = {'goa-trip', 'apartment'};
+    const demoExpenseIds = {
+      'demo-dinner',
+      'demo-cab',
+      'demo-hotel',
+      'demo-groceries',
+    };
+    expenses = expenses
+        .where((expense) => !demoExpenseIds.contains(expense.id))
+        .toList();
+    final emptyDemoGroupIds = groups
+        .where(
+          (group) =>
+              demoGroupIds.contains(group.id) &&
+              !expenses.any((expense) => expense.groupId == group.id) &&
+              !settlements.any((settlement) => settlement.groupId == group.id),
+        )
+        .map((group) => group.id)
+        .toSet();
+    groups = groups
+        .where((group) => !emptyDemoGroupIds.contains(group.id))
+        .toList();
+    await _database.transaction((transaction) async {
+      await transaction.delete(
+        'expenses',
+        where: 'id IN (?, ?, ?, ?)',
+        whereArgs: demoExpenseIds.toList(),
+      );
+      for (final groupId in emptyDemoGroupIds) {
+        await transaction.delete(
+          'groups',
+          where: 'id = ?',
+          whereArgs: [groupId],
+        );
+      }
+    });
+    notifyListeners();
   }
 
   Future<void> _seedDemoData() async {

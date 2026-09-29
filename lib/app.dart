@@ -104,7 +104,7 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      HomeScreen(onOpenGroups: () => setState(() => _index = 1)),
+      HomeScreen(onOpenActivity: () => setState(() => _index = 2)),
       const GroupsScreen(),
       const ActivityScreen(),
       const ProfileScreen(),
