@@ -68,11 +68,12 @@ class FairSplitApp extends StatelessWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: state.darkMode ? ThemeMode.dark : ThemeMode.light,
-      home: FairSplitScope(
+      home: state.onboardingComplete
+          ? const MainNavigation()
+          : const OnboardingScreen(),
+      builder: (context, child) => FairSplitScope(
         state: state,
-        child: state.onboardingComplete
-            ? const MainNavigation()
-            : const OnboardingScreen(),
+        child: child ?? const SizedBox.shrink(),
       ),
     ),
   );

@@ -46,7 +46,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final slide = _slides[_page];
     final colors = Theme.of(context).colorScheme;
     return Scaffold(
       body: SafeArea(
@@ -280,7 +279,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
       const SizedBox(height: 16),
       TextFormField(controller: _description, maxLines: 2, decoration: const InputDecoration(labelText: 'Description (optional)')),
       const SizedBox(height: 16),
-      TextFormField(controller: _members, textCapitalization: TextCapitalization.words, decoration: const InputDecoration(labelText: 'Add members', hintText: 'Names separated by commas'), helperText: 'You can invite more people from the group later.'),
+      TextFormField(controller: _members, textCapitalization: TextCapitalization.words, decoration: const InputDecoration(labelText: 'Add members', hintText: 'Names separated by commas', helperText: 'You can invite more people from the group later.')),
       const SizedBox(height: 24),
       FilledButton(onPressed: _saving ? null : _save, child: _saving ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Create group')),
     ])),
@@ -351,7 +350,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       member.id: TextEditingController(text: _initialShare(member.id)),
   };
   final Set<String> _participants = {};
-  late String _payer = widget.existing?.paidBy ?? FairSplitScope._unused;
+  late String _payer = widget.existing?.paidBy ?? 'amulya';
   late String _category = widget.existing?.category ?? 'Food';
   late SplitMethod _method = widget.existing?.splitMethod ?? SplitMethod.equal;
   DateTime _date = DateTime.now();

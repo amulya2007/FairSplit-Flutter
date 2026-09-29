@@ -5,26 +5,95 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:fairsplit/main.dart';
+import 'package:fairsplit/models.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  const members = [
+    FairMember(id: 'a', name: 'Amulya'),
+    FairMember(id: 'b', name: 'Rahul'),
+    FairMember(id: 'c', name: 'Priya'),
+    FairMember(id: 'd', name: 'Anu'),
+  ];
+  const group = FairGroup(
+    id: 'trip',
+    name: 'Trip',
+    category: 'Travel',
+    members: members,
+  );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  test('an equal expense credits the payer and debits every participant', () {
+    final expense = FairExpense(
+      id: 'dinner',
+      groupId: group.id,
+      title: 'Dinner',
+      amountCents: 120000,
+      paidBy: 'a',
+      shares: const {'a': 30000, 'b': 30000, 'c': 30000, 'd': 30000},
+      splitMethod: SplitMethod.equal,
+      category: 'Food',
+      date: DateTime(2026),
+    );
+    expect(calculateBalances(group, [expense], []), {
+      'a': 90000,
+      'b': -30000,
+      'c': -30000,
+      'd': -30000,
+    });
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  test('a settlement reduces payer debt and payee credit', () {
+    const expense = FairExpense(
+      id: 'dinner',
+      groupId: 'trip',
+      title: 'Dinner',
+      amountCents: 120000,
+      paidBy: 'a',
+      shares: {'a': 30000, 'b': 30000, 'c': 30000, 'd': 30000},
+      splitMethod: SplitMethod.equal,
+      category: 'Food',
+      date: DateTime(2026),
+    );
+    const settlement = FairSettlement(
+      id: 'payment',
+      groupId: 'trip',
+      paidBy: 'b',
+      paidTo: 'a',
+      amountCents: 10000,
+      date: DateTime(2026),
+    );
+    final balances = calculateBalances(group, [expense], [settlement]);
+    expect(balances['a'], 80000);
+    expect(balances['b'], -20000);
+    expect(balances.values.reduce((sum, value) => sum + value), 0);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  test('simplified payments preserve the total group debt', () {
+    final suggested = simplifyDebts(group, {
+      'a': 45000,
+      'b': -30000,
+      'c': -10000,
+      'd': -5000,
+    });
+    expect(suggested, hasLength(3));
+    expect(suggested.fold<int>(0, (sum, payment) => sum + payment.amountCents), 45000);
+  });
+
+  test('expense records round-trip through JSON', () {
+    const expense = FairExpense(
+      id: 'custom',
+      groupId: 'trip',
+      title: 'Cab',
+      amountCents: 9999,
+      paidBy: 'a',
+      shares: {'a': 3333, 'b': 3333, 'c': 3333},
+      splitMethod: SplitMethod.custom,
+      category: 'Travel',
+      date: DateTime(2026),
+    );
+    final restored = FairExpense.fromJson(expense.toJson());
+    expect(restored.amountCents, expense.amountCents);
+    expect(restored.shares, expense.shares);
+    expect(restored.splitMethod, SplitMethod.custom);
   });
 }
