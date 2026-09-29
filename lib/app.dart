@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_state.dart';
-import 'screens.dart';
+import 'screens/screens.dart';
 import 'theme/app_theme.dart';
 
 class FairSplitBootstrap extends StatefulWidget {
