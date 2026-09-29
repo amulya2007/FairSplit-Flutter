@@ -62,7 +62,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _finish({bool withSampleData = false}) async {
     final state = FairSplitScope.of(context);
-    if (withSampleData) await state.loadDemoData();
+    if (withSampleData) {
+      await state.loadDemoData();
+    } else {
+      await state.clearDemoData();
+    }
     await state.completeOnboarding();
   }
 
@@ -172,8 +176,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 }
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({required this.onOpenGroups, super.key});
+  const HomeScreen({
+    required this.onOpenGroups,
+    required this.onOpenActivity,
+    super.key,
+  });
   final VoidCallback onOpenGroups;
+  final VoidCallback onOpenActivity;
 
   @override
   Widget build(BuildContext context) {
@@ -353,7 +362,7 @@ class HomeScreen extends StatelessWidget {
         _SectionTitle(
           title: 'Recent activity',
           action: 'See all',
-          onTap: onOpenGroups,
+          onTap: onOpenActivity,
         ),
         const SizedBox(height: 8),
         if (recent.isEmpty)
