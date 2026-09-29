@@ -43,7 +43,7 @@ void main() {
   });
 
   test('a settlement reduces payer debt and payee credit', () {
-    const expense = FairExpense(
+    final expense = FairExpense(
       id: 'dinner',
       groupId: 'trip',
       title: 'Dinner',
@@ -54,7 +54,7 @@ void main() {
       category: 'Food',
       date: DateTime(2026),
     );
-    const settlement = FairSettlement(
+    final settlement = FairSettlement(
       id: 'payment',
       groupId: 'trip',
       paidBy: 'b',
@@ -80,7 +80,7 @@ void main() {
   });
 
   test('expense records round-trip through JSON', () {
-    const expense = FairExpense(
+    final expense = FairExpense(
       id: 'custom',
       groupId: 'trip',
       title: 'Cab',
