@@ -365,9 +365,17 @@ class FairSplitState extends ChangeNotifier {
   }
 
   Future<void> setDarkMode(bool value) async {
+    if (darkMode == value) return;
+    final previousValue = darkMode;
     darkMode = value;
-    await _persistPreference('darkMode', '$value');
     notifyListeners();
+    try {
+      await _persistPreference('darkMode', '$value');
+    } catch (_) {
+      darkMode = previousValue;
+      notifyListeners();
+      rethrow;
+    }
   }
 
   Future<void> setCurrency(String value) async {

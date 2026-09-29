@@ -1397,7 +1397,18 @@ class ProfileScreen extends StatelessWidget {
                   secondary: const Icon(Icons.dark_mode_outlined),
                   title: const Text('Dark theme'),
                   value: state.darkMode,
-                  onChanged: state.setDarkMode,
+                  onChanged: (value) async {
+                    try {
+                      await state.setDarkMode(value);
+                    } catch (_) {
+                      if (context.mounted) {
+                        _showMessage(
+                          context,
+                          'Theme preference could not be saved.',
+                        );
+                      }
+                    }
+                  },
                 ),
               ],
             ),

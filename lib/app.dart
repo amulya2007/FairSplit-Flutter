@@ -70,6 +70,8 @@ class FairSplitApp extends StatelessWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: state.darkMode ? ThemeMode.dark : ThemeMode.light,
+      themeAnimationDuration: const Duration(milliseconds: 280),
+      themeAnimationCurve: Curves.easeInOut,
       home: state.onboardingComplete
           ? const MainNavigation()
           : const OnboardingScreen(),
