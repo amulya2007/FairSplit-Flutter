@@ -5,8 +5,10 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:fairsplit/app_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fairsplit/models.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
   const members = [
@@ -99,4 +101,28 @@ void main() {
     expect(restored.shares, expense.shares);
     expect(restored.splitMethod, SplitMethod.custom);
   });
+
+  test(
+    'dark mode changes immediately and persists across state reloads',
+    () async {
+      final state = await FairSplitState.create(
+        databasePathOverride: inMemoryDatabasePath,
+      );
+      await state.setDarkMode(true);
+      expect(state.darkMode, isTrue);
+
+      final restored = await FairSplitState.create(
+        databasePathOverride: inMemoryDatabasePath,
+      );
+      expect(restored.darkMode, isTrue);
+
+      await restored.setDarkMode(false);
+      final lightMode = await FairSplitState.create(
+        databasePathOverride: inMemoryDatabasePath,
+      );
+      expect(lightMode.darkMode, isFalse);
+
+      await state.close();
+    },
+  );
 }

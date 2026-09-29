@@ -24,13 +24,13 @@ class FairSplitState extends ChangeNotifier {
   FairMember get currentMember =>
       FairMember(id: currentMemberId, name: name, email: email);
 
-  static Future<FairSplitState> create() async {
+  static Future<FairSplitState> create({String? databasePathOverride}) async {
     await configureDatabaseFactory();
     final nativePath = kIsWeb
         ? 'fairsplit.db'
         : path.join(await getDatabasesPath(), 'fairsplit.db');
     final database = await openDatabase(
-      databaseFilePath(nativePath),
+      databasePathOverride ?? databaseFilePath(nativePath),
       version: 1,
       onCreate: (db, version) async {
         await db.execute(
@@ -51,6 +51,8 @@ class FairSplitState extends ChangeNotifier {
     await state._load();
     return state;
   }
+
+  Future<void> close() => _database.close();
 
   Future<void> _load() async {
     final groupRows = await _database.query('groups');
